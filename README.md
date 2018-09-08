@@ -60,8 +60,6 @@ const wirio = require('wirio');
 * wiringPiISR vs epoll documentation (#3)
 * Add util to replace gpio (read config and set pins as root)
 
-## Contributors
-wirio is only possible due to the excellent work of the following contributors:
 
 Contributor | GitHub profile | Twitter profile |
 --- | --- | ---
