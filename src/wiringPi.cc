@@ -1,79 +1,34 @@
 #include "wiringPi.h"
 #include <wiringPi.h>
-#include <strings.h>
 
-// Setup
-DECLARE(setup);
-DECLARE(wiringPiSetup);
-DECLARE(wiringPiSetupGpio);
-DECLARE(wiringPiSetupSys);
-DECLARE(wiringPiSetupPhys);
+namespace nodewpi {
 
-// Core functions
-DECLARE(pinModeAlt);
-DECLARE(pinMode);
-DECLARE(pullUpDnControl);
-DECLARE(digitalRead);
-DECLARE(digitalWrite);
-DECLARE(pwmWrite);
-DECLARE(analogRead);
-DECLARE(analogWrite);
-DECLARE(pulseIn);
-
-DECLARE(delay);
-DECLARE(delayMicroseconds);
-DECLARE(millis);
-DECLARE(micros);
-
-// On-Board Rasberry Pi hardware specific stuff
-DECLARE(piBoardRev);
-DECLARE(piBoardId);
-DECLARE(wpiPinToGpio);
-DECLARE(physPinToGpio);
-DECLARE(setPadDrive);
-DECLARE(getAlt);
-DECLARE(pwmToneWrite);
-DECLARE(digitalWriteByte);
-DECLARE(pwmSetMode);
-DECLARE(pwmSetRange);
-DECLARE(pwmSetClock);
-DECLARE(gpioClockSet);
-
-IMPLEMENT(setup) {
-  SCOPE_OPEN();
+NAN_METHOD(setup) {
 
   SET_ARGUMENT_NAME(0, mode);
 
-  CHECK_ARGUMENTS_LENGTH_EQUAL(1);
-
-  CHECK_ARGUMENT_TYPE_STRING(0);
-
-  #if NODE_VERSION_AT_LEAST(0, 11, 0)
-    String::Utf8Value mode(GET_ARGUMENT_AS_STRING(0));
-  #else
-    String::AsciiValue mode(GET_ARGUMENT_AS_STRING(0));
-  #endif
-
-  CHECK_ARGUMENT_IN_STRINGS(0, mode, ("wpi", "gpio", "sys", "phys"));
+  std::string mode(*Nan::Utf8String(info[0]));
 
   int res = 0;
-  if (!strcasecmp(*mode, "wpi")) {
+  if (mode.compare("wpi") == 0) {
     res = ::wiringPiSetup();
   }
-  else if (!strcasecmp(*mode, "gpio")) {
+  else if (mode.compare("gpio") == 0) {
     res = ::wiringPiSetupGpio();
   }
-  else if (!strcasecmp(*mode, "sys")) {
+  else if (mode.compare("sys") == 0) {
     res = ::wiringPiSetupSys();
   }
-  else if (!strcasecmp(*mode, "phys")) {
+  else if (mode.compare("phys") == 0) {
     res = ::wiringPiSetupPhys();
+  } else {
+    THROW_INVALID_ARGUMENT_EXCEPTION(0, mode.c_str())
   }
 
   // libWiringPi v2 setup functions always returns 0, so this check is kind of useless, unless v1 behaviour is restored
   // NOTE: If you want to restore the v1 behaviour, then you need to set the
   // environment variable: WIRINGPI_CODES (to any value, it just needs to exist)
-  SCOPE_CLOSE(INT32(res));
+  info.GetReturnValue().Set(res);
 }
 
 // Func : int wiringPiSetup(void)
@@ -87,14 +42,13 @@ IMPLEMENT(setup) {
 // on the edge connector.
 // This function needs to be called with root privileges.
 
-IMPLEMENT(wiringPiSetup) {
-  SCOPE_OPEN();
+NAN_METHOD(wiringPiSetup) {
 
   CHECK_ARGUMENTS_LENGTH_EQUAL(0);
 
   int res = ::wiringPiSetup();
 
-  SCOPE_CLOSE(INT32(res));
+  info.GetReturnValue().Set(res);
 }
 
 // Func : int wiringPiSetupGpio(void)
@@ -104,14 +58,13 @@ IMPLEMENT(wiringPiSetup) {
 // As above, this function needs to be called with root privileges, and note that some pins
 // are different from revision 1 to revision 2 boards.
 
-IMPLEMENT(wiringPiSetupGpio) {
-  SCOPE_OPEN();
+NAN_METHOD(wiringPiSetupGpio) {
 
   CHECK_ARGUMENTS_LENGTH_EQUAL(0);
 
   int res = ::wiringPiSetupGpio();
 
-  SCOPE_CLOSE(INT32(res));
+  info.GetReturnValue().Set(res);
 }
 
 // Func : int wiringPiSetupSys(void)
@@ -128,14 +81,14 @@ IMPLEMENT(wiringPiSetupGpio) {
 // possible to action unless called with root privileges. (although you can use system() to call
 // gpio to set/change modes if needed).
 
-IMPLEMENT(wiringPiSetupSys) {
-  SCOPE_OPEN();
+NAN_METHOD(wiringPiSetupSys) {
+
 
   CHECK_ARGUMENTS_LENGTH_EQUAL(0);
 
   int res = ::wiringPiSetupSys();
 
-  SCOPE_CLOSE(INT32(res));
+  info.GetReturnValue().Set(res);
 }
 
 // Func : int wiringPiSetupPhys(void)
@@ -144,22 +97,22 @@ IMPLEMENT(wiringPiSetupSys) {
 // the physical pin numbers on the P1 connector only.
 // As above, this function needs to be called with root priviliges.
 
-IMPLEMENT(wiringPiSetupPhys) {
-  SCOPE_OPEN();
+NAN_METHOD(wiringPiSetupPhys) {
+
 
   CHECK_ARGUMENTS_LENGTH_EQUAL(0);
 
   int res = ::wiringPiSetupPhys();
 
-  SCOPE_CLOSE(INT32(res));
+  info.GetReturnValue().Set(res);
 }
 
 // Func : void pinModeAlt(int pin, int mode)
 // Description : This is an un-documented special to let you set any pin to any mode.
 // Modes are FSEL_INPT, FSEL_OUTP, FSEL_ALT0, FSEL_ALT1, FSEL_ALT2, FSEL_ALT3, FSEL_ALT4, FSEL_ALT5.
 
-IMPLEMENT(pinModeAlt) {
-  SCOPE_OPEN();
+NAN_METHOD(pinModeAlt) {
+
 
   SET_ARGUMENT_NAME(0, pin);
   SET_ARGUMENT_NAME(1, mode);
@@ -172,11 +125,15 @@ IMPLEMENT(pinModeAlt) {
   int pin = GET_ARGUMENT_AS_INT32(0);
   int mode = GET_ARGUMENT_AS_INT32(1);
 
-  CHECK_ARGUMENT_IN_INTS(1, mode, (FSEL_INPT, FSEL_OUTP, FSEL_ALT0, FSEL_ALT1, FSEL_ALT2, FSEL_ALT3, FSEL_ALT4, FSEL_ALT5));
+  const std::vector<int> validInputs = { FSEL_INPT, FSEL_OUTP, FSEL_ALT0, FSEL_ALT1, FSEL_ALT2, FSEL_ALT3, FSEL_ALT4, FSEL_ALT5 };
 
-  ::pinModeAlt(pin, mode);
-
-  SCOPE_CLOSE(UNDEFINED());
+  if(find_int(mode, validInputs))
+  {
+    ::pinModeAlt(pin, mode);
+  }
+  else {
+    THROW_INVALID_ARGUMENT_EXCEPTION(1, mode)
+  }
 }
 
 // Func : void pinMode(int pin, int mode)
@@ -186,8 +143,8 @@ IMPLEMENT(pinModeAlt) {
 // This function has no effect when in Sys mode. If you need to change the pin mode, the you can
 // do it with the gpio program in a script before you start your program.
 
-IMPLEMENT(pinMode) {
-  SCOPE_OPEN();
+NAN_METHOD(pinMode) {
+
 
   SET_ARGUMENT_NAME(0, pin);
   SET_ARGUMENT_NAME(1, mode);
@@ -200,11 +157,16 @@ IMPLEMENT(pinMode) {
   int pin = GET_ARGUMENT_AS_INT32(0);
   int mode = GET_ARGUMENT_AS_INT32(1);
 
-  CHECK_ARGUMENT_IN_INTS(1, mode, (INPUT, OUTPUT, PWM_OUTPUT, GPIO_CLOCK, SOFT_PWM_OUTPUT, SOFT_TONE_OUTPUT));
+  const std::vector<int> validInputs = { INPUT, OUTPUT, PWM_OUTPUT, GPIO_CLOCK, SOFT_PWM_OUTPUT, SOFT_TONE_OUTPUT };
 
-  ::pinMode(pin, mode);
+  if(find_int(mode, validInputs))
+  {
+    ::pinMode(pin, mode);
+  }
+  else {
+    THROW_INVALID_ARGUMENT_EXCEPTION(1, mode)
+  }
 
-  SCOPE_CLOSE(UNDEFINED());
 }
 
 // Func : void pullUpDnControl(int pin, int pud)
@@ -213,8 +175,8 @@ IMPLEMENT(pinMode) {
 // The parameter pud should be; PUD_OFF (no pull up/down), PUD_DOWN (pull to ground) or PUD_UP (pull to 3.3v).
 // The internal pull up/down resistors have a value of approximately 50KΩ on the Raspberry Pi.
 
-IMPLEMENT(pullUpDnControl) {
-  SCOPE_OPEN();
+NAN_METHOD(pullUpDnControl) {
+
 
   SET_ARGUMENT_NAME(0, pin);
   SET_ARGUMENT_NAME(1, pud);
@@ -227,19 +189,23 @@ IMPLEMENT(pullUpDnControl) {
   int pin = GET_ARGUMENT_AS_INT32(0);
   int pud = GET_ARGUMENT_AS_INT32(1);
 
-  CHECK_ARGUMENT_IN_INTS(1, pud, (PUD_OFF, PUD_DOWN, PUD_UP));
+  const std::vector<int> validInputs = { PUD_OFF, PUD_DOWN, PUD_UP };
 
-  ::pullUpDnControl(pin, pud);
+  if(find_int(pud, validInputs))
+  {
+    ::pullUpDnControl(pin, pud);
+  } else {
+    THROW_INVALID_ARGUMENT_EXCEPTION(1, pud)
+  }
 
-  SCOPE_CLOSE(UNDEFINED());
 }
 
 // Func : int digitalRead(int pin)
 // Description : This function returns the value read at the given pin. It will be HIGH or LOW (1 or 0)
 // depending on the logic level at the pin.
 
-IMPLEMENT(digitalRead) {
-  SCOPE_OPEN();
+NAN_METHOD(digitalRead) {
+
 
   SET_ARGUMENT_NAME(0, pin);
 
@@ -255,7 +221,7 @@ IMPLEMENT(digitalRead) {
   // If the source type is bool, the value false is converted to zero and the value true is converted to one.
   res = (res != 0);
 
-  SCOPE_CLOSE(INT32(res));
+  info.GetReturnValue().Set(res);
 }
 
 // Func : void digitalWrite(int pin, int value)
@@ -263,8 +229,8 @@ IMPLEMENT(digitalRead) {
 // previously set as an output.
 // WiringPi treats any non-zero number as HIGH, however 0 is the only representation of LOW.
 
-IMPLEMENT(digitalWrite) {
-  SCOPE_OPEN();
+NAN_METHOD(digitalWrite) {
+
 
   SET_ARGUMENT_NAME(0, pin);
   SET_ARGUMENT_NAME(1, state);
@@ -277,11 +243,16 @@ IMPLEMENT(digitalWrite) {
   int pin = GET_ARGUMENT_AS_INT32(0);
   int state = GET_ARGUMENT_AS_INT32(1);
 
-  CHECK_ARGUMENT_IN_INTS(1, state, (HIGH, LOW));
+  const std::vector<int> validStates = { HIGH, LOW };
 
-  ::digitalWrite(pin, state);
+  if(find_int(state, validStates)) {
+    ::digitalWrite(pin, state);
+  } else {
+    THROW_INVALID_ARGUMENT_EXCEPTION(1, state)
+  }
+  
+  
 
-  SCOPE_CLOSE(UNDEFINED());
 }
 
 // Func : void pwmWrite(int pin, int value)
@@ -290,8 +261,8 @@ IMPLEMENT(digitalWrite) {
 // devices may have other PWM ranges.
 // This function is not able to control the Pi's on-board PWM when in Sys mode.
 
-IMPLEMENT(pwmWrite) {
-  SCOPE_OPEN();
+NAN_METHOD(pwmWrite) {
+
 
   SET_ARGUMENT_NAME(0, pin);
   SET_ARGUMENT_NAME(1, value);
@@ -306,11 +277,11 @@ IMPLEMENT(pwmWrite) {
 
   ::pwmWrite(pin, value);
 
-  SCOPE_CLOSE(UNDEFINED());
+
 }
 
-IMPLEMENT(analogRead) {
-  SCOPE_OPEN();
+NAN_METHOD(analogRead) {
+
 
   SET_ARGUMENT_NAME(0, pin);
 
@@ -321,15 +292,15 @@ IMPLEMENT(analogRead) {
   int pin = GET_ARGUMENT_AS_INT32(0);
   int res = ::analogRead(pin);
 
-  SCOPE_CLOSE(INT32(res));
+  info.GetReturnValue().Set(res);
 }
 
 // Func : void analogWrite(int pin, int value)
 // Description : This writes the given value to the supplied analog pin. You will need to register
 // additional analog modules to enable this function for devices such as the Gertboard.
 
-IMPLEMENT(analogWrite) {
-  SCOPE_OPEN();
+NAN_METHOD(analogWrite) {
+
 
   SET_ARGUMENT_NAME(0, pin);
   SET_ARGUMENT_NAME(1, value);
@@ -344,32 +315,11 @@ IMPLEMENT(analogWrite) {
 
   ::analogWrite(pin, value);
 
-  SCOPE_CLOSE(UNDEFINED());
+
 }
 
-IMPLEMENT(pulseIn) {
-  SCOPE_OPEN();
+NAN_METHOD(delay) {
 
-  SET_ARGUMENT_NAME(0, pin);
-  SET_ARGUMENT_NAME(1, state);
-
-  CHECK_ARGUMENTS_LENGTH_EQUAL(2);
-
-  CHECK_ARGUMENT_TYPE_INT32(0);
-  CHECK_ARGUMENT_TYPE_INT32(1);
-
-  int pin = GET_ARGUMENT_AS_INT32(0);
-  int state = GET_ARGUMENT_AS_INT32(1);
-
-  CHECK_ARGUMENT_IN_INTS(1, state, (HIGH, LOW));
-
-  int us = ::pulseIn(pin, state);
-
-  SCOPE_CLOSE(INT32(us));
-}
-
-IMPLEMENT(delay) {
-  SCOPE_OPEN();
 
   SET_ARGUMENT_NAME(0, ms);
 
@@ -381,11 +331,11 @@ IMPLEMENT(delay) {
 
   ::delay(ms);
 
-  SCOPE_CLOSE(UNDEFINED());
+
 }
 
-IMPLEMENT(delayMicroseconds) {
-  SCOPE_OPEN();
+NAN_METHOD(delayMicroseconds) {
+
 
   SET_ARGUMENT_NAME(0, us);
 
@@ -397,27 +347,25 @@ IMPLEMENT(delayMicroseconds) {
 
   ::delayMicroseconds(us);
 
-  SCOPE_CLOSE(UNDEFINED());
+
 }
 
-IMPLEMENT(millis) {
-  SCOPE_OPEN();
+NAN_METHOD(millis) {
 
   CHECK_ARGUMENTS_LENGTH_EQUAL(0);
 
   unsigned int ms = ::millis();
 
-  SCOPE_CLOSE(UINT32(ms));
+  info.GetReturnValue().Set(ms);
 }
 
-IMPLEMENT(micros) {
-  SCOPE_OPEN();
+NAN_METHOD(micros) {
 
   CHECK_ARGUMENTS_LENGTH_EQUAL(0);
 
   unsigned int us = ::micros();
 
-  SCOPE_CLOSE(UINT32(us));
+  info.GetReturnValue().Set(us);
 }
 
 // === Raspberry Pi specific ===
@@ -427,18 +375,16 @@ IMPLEMENT(micros) {
 // Some of the BCM_GPIO pins changed number and function when moving from board revision 1 to 2,
 // so if you are using BCM_GPIO pin numbers, then you need to be aware of the differences.
 
-IMPLEMENT(piBoardRev) {
-  SCOPE_OPEN();
+NAN_METHOD(piBoardRev) {
 
   CHECK_ARGUMENTS_LENGTH_EQUAL(0);
 
   int res = ::piBoardRev();
 
-  SCOPE_CLOSE(INT32(res));
+  info.GetReturnValue().Set(res);
 }
 
-IMPLEMENT(piBoardId) {
-  SCOPE_OPEN();
+NAN_METHOD(piBoardId) {
 
   CHECK_ARGUMENTS_LENGTH_EQUAL(0);
 
@@ -449,31 +395,22 @@ IMPLEMENT(piBoardId) {
 
   ::piBoardId(&model, &rev, &mem, &marker, &overvolted);
 
-  #if NODE_VERSION_AT_LEAST(0, 11, 0)
-    Local<Object> obj = Object::New(isolate);
-    obj->Set(String::NewFromUtf8(isolate, "model", v8::String::kInternalizedString), INT32(model));
-    obj->Set(String::NewFromUtf8(isolate, "rev", v8::String::kInternalizedString), INT32(rev));
-    obj->Set(String::NewFromUtf8(isolate, "mem", v8::String::kInternalizedString), INT32(mem));
-    obj->Set(String::NewFromUtf8(isolate, "marker", v8::String::kInternalizedString), INT32(marker));
-    obj->Set(String::NewFromUtf8(isolate, "overvolted", v8::String::kInternalizedString), INT32(overvolted));
-  #else
-    Local<Object> obj = Object::New();
-    obj->Set(String::NewSymbol("model"), INT32(model));
-    obj->Set(String::NewSymbol("rev"), INT32(rev));
-    obj->Set(String::NewSymbol("mem"), INT32(mem));
-    obj->Set(String::NewSymbol("marker"), INT32(marker));
-    obj->Set(String::NewSymbol("overvolted"), INT32(overvolted));
-  #endif
-
-  SCOPE_CLOSE(obj);
+    Local<Object> obj = Nan::New<Object>();
+    obj->Set(STRING("model"), INT32(model));
+    obj->Set(STRING("rev"), INT32(rev));
+    obj->Set(STRING("mem"), INT32(mem));
+    obj->Set(STRING("marker"), INT32(marker));
+    obj->Set(STRING("overvolted"), INT32(overvolted));
+  
+  info.GetReturnValue().Set(obj);
 }
 
 // Func : int wpiPinToGpio(int wpiPin)
 // Description : This returns the BCM_GPIO pin number of the supplied wiringPi pin.
 // It takes the board revision into account.
 
-IMPLEMENT(wpiPinToGpio) {
-  SCOPE_OPEN();
+NAN_METHOD(wpiPinToGpio) {
+
 
   SET_ARGUMENT_NAME(0, pin);
 
@@ -484,14 +421,14 @@ IMPLEMENT(wpiPinToGpio) {
   int pin = GET_ARGUMENT_AS_INT32(0);
   int res = ::wpiPinToGpio(pin);
 
-  SCOPE_CLOSE(INT32(res));
+  info.GetReturnValue().Set(res);
 }
 
 // Func : int physPinToGpio (int physPin)
 // Description : This returns the BCM_GPIO pin number of the suppled physical pin on the P1 connector.
 
-IMPLEMENT(physPinToGpio) {
-  SCOPE_OPEN();
+NAN_METHOD(physPinToGpio) {
+
 
   SET_ARGUMENT_NAME(0, pin);
 
@@ -502,7 +439,7 @@ IMPLEMENT(physPinToGpio) {
   int pin = GET_ARGUMENT_AS_INT32(0);
   int res = ::physPinToGpio(pin);
 
-  SCOPE_CLOSE(INT32(res));
+  info.GetReturnValue().Set(res);
 }
 
 // Func : void setPadDrive(int group, int value)
@@ -510,8 +447,8 @@ IMPLEMENT(physPinToGpio) {
 // There are 3 groups of pins and the drive strength is from 0 to 7. Do not use the unless you
 // know what you are doing.
 
-IMPLEMENT(setPadDrive) {
-  SCOPE_OPEN();
+NAN_METHOD(setPadDrive) {
+
 
   SET_ARGUMENT_NAME(0, group);
   SET_ARGUMENT_NAME(1, value);
@@ -526,15 +463,15 @@ IMPLEMENT(setPadDrive) {
 
   ::setPadDrive(group, value);
 
-  SCOPE_CLOSE(UNDEFINED());
+
 }
 
 // Func : int getAlt(int pin)
 // Description : Returns the ALT bits for a given port. Only really of-use
 // for the gpio readall command (I think).
 
-IMPLEMENT(getAlt) {
-  SCOPE_OPEN();
+NAN_METHOD(getAlt) {
+
 
   SET_ARGUMENT_NAME(0, pin);
 
@@ -545,11 +482,11 @@ IMPLEMENT(getAlt) {
   int pin = GET_ARGUMENT_AS_INT32(0);
   int res = ::getAlt(pin);
 
-  SCOPE_CLOSE(INT32(res));
+  info.GetReturnValue().Set(res);
 }
 
-IMPLEMENT(pwmToneWrite) {
-  SCOPE_OPEN();
+NAN_METHOD(pwmToneWrite) {
+
 
   SET_ARGUMENT_NAME(0, pin);
   SET_ARGUMENT_NAME(1, frequency);
@@ -564,7 +501,7 @@ IMPLEMENT(pwmToneWrite) {
 
   ::pwmToneWrite(pin, frequency);
 
-  SCOPE_CLOSE(UNDEFINED());
+
 }
 
 // Func : void digitalWriteByte(int value)
@@ -572,8 +509,8 @@ IMPLEMENT(pwmToneWrite) {
 // It’s the fastest way to set all 8 bits at once to a particular value, although it still takes
 // two write operations to the Pi’s GPIO hardware.
 
-IMPLEMENT(digitalWriteByte) {
-  SCOPE_OPEN();
+NAN_METHOD(digitalWriteByte) {
+
 
   SET_ARGUMENT_NAME(0, byte);
 
@@ -584,7 +521,7 @@ IMPLEMENT(digitalWriteByte) {
   int byte = GET_ARGUMENT_AS_INT32(0);
   ::digitalWriteByte(byte);
 
-  SCOPE_CLOSE(UNDEFINED());
+
 }
 
 // Func : void pwmSetMode(int mode)
@@ -592,8 +529,8 @@ IMPLEMENT(digitalWriteByte) {
 // The mark:space mode is traditional, however the default mode in the Pi is “balanced”.
 // You can switch modes by supplying the parameter: PWM_MODE_BAL or PWM_MODE_MS.
 
-IMPLEMENT(pwmSetMode) {
-  SCOPE_OPEN();
+NAN_METHOD(pwmSetMode) {
+
 
   SET_ARGUMENT_NAME(0, mode);
 
@@ -603,11 +540,14 @@ IMPLEMENT(pwmSetMode) {
 
   int mode = GET_ARGUMENT_AS_INT32(0);
 
-  CHECK_ARGUMENT_IN_INTS(0, mode, (PWM_MODE_BAL, PWM_MODE_MS));
+  const std::vector<int> validInts = { PWM_MODE_BAL, PWM_MODE_MS };
 
-  ::pwmSetMode(mode);
+  if(find_int(mode, validInts)) {
+    ::pwmSetMode(mode);
+  } else {
+    THROW_INVALID_ARGUMENT_EXCEPTION(0, mode)
+  }
 
-  SCOPE_CLOSE(UNDEFINED());
 }
 
 // Func : void pwmSetRange(unsigned int range)
@@ -615,8 +555,8 @@ IMPLEMENT(pwmSetMode) {
 // Note: The PWM control functions can not be used when in Sys mode. To understand more about
 // the PWM system, you’ll need to read the Broadcom ARM peripherals manual.
 
-IMPLEMENT(pwmSetRange) {
-  SCOPE_OPEN();
+NAN_METHOD(pwmSetRange) {
+
 
   SET_ARGUMENT_NAME(0, range);
 
@@ -627,7 +567,7 @@ IMPLEMENT(pwmSetRange) {
   unsigned int range = GET_ARGUMENT_AS_UINT32(0);
   ::pwmSetRange(range);
 
-  SCOPE_CLOSE(UNDEFINED());
+
 }
 
 // Func : void pwmSetClock(int divisor)
@@ -635,8 +575,8 @@ IMPLEMENT(pwmSetRange) {
 // Note: The PWM control functions can not be used when in Sys mode. To understand more about
 // the PWM system, you’ll need to read the Broadcom ARM peripherals manual.
 
-IMPLEMENT(pwmSetClock) {
-  SCOPE_OPEN();
+NAN_METHOD(pwmSetClock) {
+
 
   SET_ARGUMENT_NAME(0, divisor);
 
@@ -647,14 +587,14 @@ IMPLEMENT(pwmSetClock) {
   int divisor = GET_ARGUMENT_AS_INT32(0);
   ::pwmSetClock(divisor);
 
-  SCOPE_CLOSE(UNDEFINED());
+
 }
 
 // Func : void gpioClockSet(int pin, int freq)
 // Description : Set the frequency on a GPIO clock pin
 
-IMPLEMENT(gpioClockSet) {
-  SCOPE_OPEN();
+NAN_METHOD(gpioClockSet) {
+
 
   SET_ARGUMENT_NAME(0, pin);
   SET_ARGUMENT_NAME(1, frequency);
@@ -669,109 +609,118 @@ IMPLEMENT(gpioClockSet) {
 
   ::gpioClockSet(pin, frequency);
 
-  SCOPE_CLOSE(UNDEFINED());
+
 }
 
-IMPLEMENT_EXPORT_INIT(wiringPi) {
+NAN_MODULE_INIT(init_wiringPi) {
   // Setup
-  EXPORT_FUNCTION(setup);
-  EXPORT_FUNCTION(wiringPiSetup);
-  EXPORT_FUNCTION(wiringPiSetupGpio);
-  EXPORT_FUNCTION(wiringPiSetupSys);
-  EXPORT_FUNCTION(wiringPiSetupPhys);
+  NAN_EXPORT(target, setup);
+  NAN_EXPORT(target, wiringPiSetup);
+  NAN_EXPORT(target, wiringPiSetupGpio);
+  NAN_EXPORT(target, wiringPiSetupSys);
+  NAN_EXPORT(target, wiringPiSetupPhys);
 
   // Core functions
-  EXPORT_FUNCTION(pinModeAlt);
-  EXPORT_FUNCTION(pinMode);
-  EXPORT_FUNCTION(pullUpDnControl);
-  EXPORT_FUNCTION(digitalRead);
-  EXPORT_FUNCTION(digitalWrite);
-  EXPORT_FUNCTION(pwmWrite);
-  EXPORT_FUNCTION(analogRead);
-  EXPORT_FUNCTION(analogWrite);
-  EXPORT_FUNCTION(pulseIn);
+  NAN_EXPORT(target, pinModeAlt);
+  NAN_EXPORT(target, pinMode);
+  NAN_EXPORT(target, pullUpDnControl);
+  NAN_EXPORT(target, digitalRead);
+  NAN_EXPORT(target, digitalWrite);
+  NAN_EXPORT(target, pwmWrite);
+  NAN_EXPORT(target, analogRead);
+  NAN_EXPORT(target, analogWrite);
 
-  EXPORT_FUNCTION(delay);
-  EXPORT_FUNCTION(delayMicroseconds);
-  EXPORT_FUNCTION(millis);
-  EXPORT_FUNCTION(micros);
+  NAN_EXPORT(target, delay);
+  NAN_EXPORT(target, delayMicroseconds);
+  NAN_EXPORT(target, millis);
+  NAN_EXPORT(target, micros);
 
   // On-Board Rasberry Pi hardware specific stuff
-  EXPORT_FUNCTION(piBoardRev);
-  EXPORT_FUNCTION(piBoardId);
-  EXPORT_FUNCTION(wpiPinToGpio);
-  EXPORT_FUNCTION(physPinToGpio);
-  EXPORT_FUNCTION(setPadDrive);
-  EXPORT_FUNCTION(getAlt);
-  EXPORT_FUNCTION(pwmToneWrite);
-  EXPORT_FUNCTION(digitalWriteByte);
-  EXPORT_FUNCTION(pwmSetMode);
-  EXPORT_FUNCTION(pwmSetRange);
-  EXPORT_FUNCTION(pwmSetClock);
-  EXPORT_FUNCTION(gpioClockSet);
+  NAN_EXPORT(target, piBoardRev);
+  NAN_EXPORT(target, piBoardId);
+  NAN_EXPORT(target, wpiPinToGpio);
+  NAN_EXPORT(target, physPinToGpio);
+  NAN_EXPORT(target, setPadDrive);
+  NAN_EXPORT(target, getAlt);
+  NAN_EXPORT(target, pwmToneWrite);
+  NAN_EXPORT(target, digitalWriteByte);
+  NAN_EXPORT(target, pwmSetMode);
+  NAN_EXPORT(target, pwmSetRange);
+  NAN_EXPORT(target, pwmSetClock);
+  NAN_EXPORT(target, gpioClockSet);
 
   // WPI_MODEs
-  EXPORT_CONSTANT_INT(WPI_MODE_PINS);
-  EXPORT_CONSTANT_INT(WPI_MODE_PHYS);
-  EXPORT_CONSTANT_INT(WPI_MODE_GPIO);
-  EXPORT_CONSTANT_INT(WPI_MODE_GPIO_SYS);
-  EXPORT_CONSTANT_INT(WPI_MODE_PIFACE);
-  EXPORT_CONSTANT_INT(WPI_MODE_UNINITIALISED);
-  
+  NODE_DEFINE_CONSTANT(target, WPI_MODE_PINS);
+  NODE_DEFINE_CONSTANT(target, WPI_MODE_PHYS);
+  NODE_DEFINE_CONSTANT(target, WPI_MODE_GPIO);
+  NODE_DEFINE_CONSTANT(target, WPI_MODE_GPIO_SYS);
+  NODE_DEFINE_CONSTANT(target, WPI_MODE_PIFACE);
+  NODE_DEFINE_CONSTANT(target, WPI_MODE_UNINITIALISED);
+
 
   // pinMode
-  EXPORT_CONSTANT_INT(INPUT);
-  EXPORT_CONSTANT_INT(OUTPUT);
-  EXPORT_CONSTANT_INT(PWM_OUTPUT);
-  EXPORT_CONSTANT_INT(GPIO_CLOCK);
-  EXPORT_CONSTANT_INT(SOFT_PWM_OUTPUT);
-  EXPORT_CONSTANT_INT(SOFT_TONE_OUTPUT);
+  NODE_DEFINE_CONSTANT(target, INPUT);
+  NODE_DEFINE_CONSTANT(target, OUTPUT);
+  NODE_DEFINE_CONSTANT(target, PWM_OUTPUT);
+  NODE_DEFINE_CONSTANT(target, GPIO_CLOCK);
+  NODE_DEFINE_CONSTANT(target, SOFT_PWM_OUTPUT);
+  NODE_DEFINE_CONSTANT(target, SOFT_TONE_OUTPUT);
 
   // pullUpDnControl
-  EXPORT_CONSTANT_INT(PUD_OFF);
-  EXPORT_CONSTANT_INT(PUD_DOWN);
-  EXPORT_CONSTANT_INT(PUD_UP);
+  NODE_DEFINE_CONSTANT(target, PUD_OFF);
+  NODE_DEFINE_CONSTANT(target, PUD_DOWN);
+  NODE_DEFINE_CONSTANT(target, PUD_UP);
 
   // digitalRead/Write
-  EXPORT_CONSTANT_INT(HIGH);
-  EXPORT_CONSTANT_INT(LOW);
+  NODE_DEFINE_CONSTANT(target, HIGH);
+  NODE_DEFINE_CONSTANT(target, LOW);
 
   // pwmSetMode
-  EXPORT_CONSTANT_INT(PWM_MODE_BAL);
-  EXPORT_CONSTANT_INT(PWM_MODE_MS);
+  NODE_DEFINE_CONSTANT(target, PWM_MODE_BAL);
+  NODE_DEFINE_CONSTANT(target, PWM_MODE_MS);
 
   // piBoardId
-  EXPORT_CONSTANT_INT(PI_MODEL_UNKNOWN);
-  EXPORT_CONSTANT_INT(PI_MODEL_A);
-  EXPORT_CONSTANT_INT(PI_MODEL_B);
-  EXPORT_CONSTANT_INT(PI_MODEL_BP);
-  EXPORT_CONSTANT_INT(PI_MODEL_CM);
-  EXPORT_CONSTANT_INT(PI_MODEL_AP);
-  EXPORT_CONSTANT_INT(PI_MODEL_2);
+  NODE_DEFINE_CONSTANT(target, PI_MODEL_A);
+  NODE_DEFINE_CONSTANT(target, PI_MODEL_B);
+  NODE_DEFINE_CONSTANT(target, PI_MODEL_BP);
+  NODE_DEFINE_CONSTANT(target, PI_MODEL_CM);
+  NODE_DEFINE_CONSTANT(target, PI_MODEL_AP);
+  NODE_DEFINE_CONSTANT(target, PI_MODEL_2);
+  NODE_DEFINE_CONSTANT(target, PI_MODEL_3);
+  NODE_DEFINE_CONSTANT(target, PI_MODEL_07);
+  NODE_DEFINE_CONSTANT(target, PI_MODEL_ZERO);
 
-  EXPORT_CONSTANT_INT(PI_VERSION_UNKNOWN);
-  EXPORT_CONSTANT_INT(PI_VERSION_1);
-  EXPORT_CONSTANT_INT(PI_VERSION_1_1);
-  EXPORT_CONSTANT_INT(PI_VERSION_1_2);
-  EXPORT_CONSTANT_INT(PI_VERSION_2);
+  NODE_DEFINE_CONSTANT(target, PI_VERSION_1);
+  NODE_DEFINE_CONSTANT(target, PI_VERSION_1_1);
+  NODE_DEFINE_CONSTANT(target, PI_VERSION_1_2);
+  NODE_DEFINE_CONSTANT(target, PI_VERSION_2);
 
-  EXPORT_CONSTANT_INT(PI_MAKER_UNKNOWN);
-  EXPORT_CONSTANT_INT(PI_MAKER_EGOMAN);
-  EXPORT_CONSTANT_INT(PI_MAKER_SONY);
-  EXPORT_CONSTANT_INT(PI_MAKER_QISDA);
-  EXPORT_CONSTANT_INT(PI_MAKER_MBEST);
+  NODE_DEFINE_CONSTANT(target, PI_MAKER_UNKNOWN);
+  NODE_DEFINE_CONSTANT(target, PI_MAKER_EGOMAN);
+  NODE_DEFINE_CONSTANT(target, PI_MAKER_SONY);
+
+  // MBEST became EMBEST after wiringPi 2.32
+#ifdef PI_MAKER_EMBEST
+  NODE_DEFINE_CONSTANT(target, PI_MAKER_EMBEST);
+#endif
+
+#ifdef PI_MAKER_MBEST
+  NODE_DEFINE_CONSTANT(target,PI_MAKER_MBEST);
+#endif
 
   EXPORT_CONSTANT_STRING_ARRAY(PI_MODEL_NAMES, piModelNames, 7);
   EXPORT_CONSTANT_STRING_ARRAY(PI_REVISION_NAMES, piRevisionNames, 5);
   EXPORT_CONSTANT_STRING_ARRAY(PI_MAKER_NAMES, piMakerNames, 5);
 
   // pinModeAlt
-  EXPORT_CONSTANT_INT(FSEL_INPT);
-  EXPORT_CONSTANT_INT(FSEL_OUTP);
-  EXPORT_CONSTANT_INT(FSEL_ALT0);
-  EXPORT_CONSTANT_INT(FSEL_ALT1);
-  EXPORT_CONSTANT_INT(FSEL_ALT2);
-  EXPORT_CONSTANT_INT(FSEL_ALT3);
-  EXPORT_CONSTANT_INT(FSEL_ALT4);
-  EXPORT_CONSTANT_INT(FSEL_ALT5);
+  NODE_DEFINE_CONSTANT(target, FSEL_INPT);
+  NODE_DEFINE_CONSTANT(target, FSEL_OUTP);
+  NODE_DEFINE_CONSTANT(target, FSEL_ALT0);
+  NODE_DEFINE_CONSTANT(target, FSEL_ALT1);
+  NODE_DEFINE_CONSTANT(target, FSEL_ALT2);
+  NODE_DEFINE_CONSTANT(target, FSEL_ALT3);
+  NODE_DEFINE_CONSTANT(target, FSEL_ALT4);
+  NODE_DEFINE_CONSTANT(target, FSEL_ALT5);
 }
+
+} //namespace nodewpi

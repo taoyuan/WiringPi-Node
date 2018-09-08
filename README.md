@@ -1,33 +1,65 @@
-Node.js bindings to [wiringPi](http://www.wiringpi.com)
+# wirio
 
-Based on the awesome work of [Soarez](https://github.com/Soarez/node-wiring-pi)
+>  Node.js bindings to [wiringPi](http://www.wiringpi.com)
+> `wirio` is based on https://github.com/WiringPi/WiringPi-Node
+
+It differs from the original project by:
+
+* Using a vanilla WiringPi.com install, rather than a customised build.  
+This version of the node bindings will be missing features that have been added to https://github.com/WiringPi/WiringPi-Node.
+
+* Using [NAN](https://github.com/nodejs/nan) to provide Node version abstraction
+Hopefully this makes it more resilient against Node API changes
+
+This should mean that installation is simpler, and supports npm install -g (global mode).
 
 ## Install
 
+Make sure you have [WiringPi](http://wiringpi.com/download-and-install/) installed.  On Raspbian Jessie, this should be as easy as:
+
 ```
-npm install wiring-pi
+sudo apt-get install wiringpi
+```
+
+See the [WiringPi](http://wiringpi.com/download-and-install/) link for more options and details.
+
+Or install [BPI-WiringPi2](https://github.com/BPI-SINOVOIP/BPI-WiringPi2) for BananaPi.
+
+```
+# install bpi-tools for detecting bpi board model
+> curl -sL https://github.com/BPI-SINOVOIP/bpi-tools/raw/master/bpi-tools | sudo -E bash -
+
+# generating hardware info
+> sudo bpi-hw
+
+# install bpi wiringpi
+> git clone https://github.com/BPI-SINOVOIP/BPI-WiringPi2
+> cd BPI-WiringPi2
+> ./build
+```
+
+To install this node module:
+
+```
+npm install wirio
 ```
 
 ## Usage
 
 ```javascript
-var wpi = require('wiring-pi');
+const wirio = require('wirio);
 ```
-## Documentation
 
-See the [DOCUMENTATION.md](https://github.com/WiringPi/WiringPi-Node/blob/master/DOCUMENTATION.md) file for more detailed documentation.
+## TODO
 
-## Contributing
+* Documentation!
+* Review export constants
+* Add NAN_MODULE_INIT signatures to .h files
+* Update build script - rebuild or configure build?
+* Add devlib / extensions
+* wiringPiISR vs epoll documentation (#3)
+* Add util to replace gpio (read config and set pins as root)
 
-wiring-pi is an [**OPEN Open Source Project**](http://openopensource.org/). This means that:
-
-> Individuals making significant and valuable contributions are given commit-access to the project to contribute as they see fit. This project is more like an open wiki than a standard guarded open source project.
-
-See the [CONTRIBUTING.md](https://github.com/WiringPi/WiringPi-Node/blob/master/CONTRIBUTING.md) file for more details.
-
-### Contributors
-
-wiring-pi is only possible due to the excellent work of the following contributors:
 
 Contributor | GitHub profile | Twitter profile |
 --- | --- | ---

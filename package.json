@@ -1,15 +1,19 @@
 {
-  "name": "wiring-pi",
-  "version": "2.2.1",
-  "description": "Bindings to wiringPi",
-  "main": "lib/exports.js",
+  "name": "wirio",
+  "version": "0.0.4",
+  "description": "Bindings to native wiringPi",
+  "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "install": "/bin/bash ./install.sh"
   },
+  "devDependencies": {
+    "nan": "^2.0.5",
+    "node-gyp": "^1.0.3"
+  },
   "repository": {
     "type": "git",
-    "url": "git@github.com:WiringPi/WiringPi-Node.git"
+    "url": "https://github.com/taoyuan/wirio.git"
   },
   "keywords": [
     "wiringPi",
@@ -19,10 +23,15 @@
     "raspberrypi",
     "bcm2835"
   ],
-  "author": "Igor Soarez <igorsoarez@gmail.com>",
+  "author": "Richard Grime <richard.grime@gmail.com>",
   "contributors": [
+    "Igor Soarez <igorsoarez@gmail.com>",
     "Leandre Gohy <leandre.gohy@hexeo.be>",
     "Eugene Ware <eugene@noblesamurai.com>"
   ],
-  "license": "BSD"
+  "license": "BSD-3-Clause",
+  "dependencies": {
+    "nan": "^2.4.0",
+    "bindings" : "1.2.1"
+  }
 }

@@ -1,3 +1,7 @@
 build
 npm-debug.log
 install.log
+wiringPi
+node_modules
+.vscode
+wiring-pi-xcode.xcworkspace
