@@ -17,7 +17,7 @@ This should mean that installation is simpler, and supports npm install -g (glob
 
 Make sure you have [WiringPi](http://wiringpi.com/download-and-install/) installed.  On Raspbian Jessie, this should be as easy as:
 
-```
+```bash
 sudo apt-get install wiringpi
 ```
 
@@ -25,7 +25,7 @@ See the [WiringPi](http://wiringpi.com/download-and-install/) link for more opti
 
 Or install [BPI-WiringPi2](https://github.com/BPI-SINOVOIP/BPI-WiringPi2) for BananaPi.
 
-```
+```bash
 # install bpi-tools for detecting bpi board model
 > curl -sL https://github.com/BPI-SINOVOIP/bpi-tools/raw/master/bpi-tools | sudo -E bash -
 
@@ -40,14 +40,14 @@ Or install [BPI-WiringPi2](https://github.com/BPI-SINOVOIP/BPI-WiringPi2) for Ba
 
 To install this node module:
 
-```
+```bash
 npm install wirio
 ```
 
 ## Usage
 
-```javascript
-const wirio = require('wirio);
+```js
+const wirio = require('wirio');
 ```
 
 ## TODO
