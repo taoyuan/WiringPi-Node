@@ -2,7 +2,7 @@
 #include <wiringPiSPI.h>
 #include <unistd.h>
 
-namespace nodewpi {
+namespace wirio {
 // Func : int wiringPiSPIGetFd(int channel)
 
 NAN_METHOD(wiringPiSPIGetFd) {
@@ -134,5 +134,5 @@ NAN_MODULE_INIT(init_wiringPiSPI) {
    NAN_EXPORT(target, wiringPiSPIClose);
 }
 
-} //namespace nodewpi
+} //namespace wirio
 

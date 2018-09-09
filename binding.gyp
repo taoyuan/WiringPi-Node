@@ -1,20 +1,20 @@
 {
   'targets': [
     {
-      'target_name': 'nodeWiringPi',
+      'target_name': 'wirio',
       'sources': [
-        'src/addon.cc',
+        'native/addon.cc',
         
-        'src/wiringPi.cc',
-        'src/softPwm.cc',
-        'src/softTone.cc',
-        'src/wiringPiI2C.cc',
-        'src/wiringPiISR.cc',
-        'src/wiringPiSPI.cc',
-        'src/wiringSerial.cc',
-        'src/wiringShift.cc',
+        'native/wiringPi.cc',
+        'native/softPwm.cc',
+        'native/softTone.cc',
+        'native/wiringPiI2C.cc',
+        'native/wiringPiISR.cc',
+        'native/wiringPiSPI.cc',
+        'native/wiringSerial.cc',
+        'native/wiringShift.cc',
 
-        'src/nodeWiringPi.cc'
+        'native/wirio.cc'
 
       ],
       'include_dirs': [

@@ -1,7 +1,7 @@
 #include "wiringShift.h"
 #include <wiringShift.h>
 
-namespace nodewpi {
+namespace wirio {
 
 // Func : uint8_t shiftIn(uint8_t dPin, uint8_t cPin, uint8_t order)
 // Description : This shifts an 8-bit data value in with the data appearing on the dPin and the clock being sent out on the cPin.
@@ -75,4 +75,4 @@ NAN_MODULE_INIT(init_wiringShift) {
    NODE_DEFINE_CONSTANT(target, MSBFIRST);
 }
 
-} //namespace nodewpi
+} //namespace wirio

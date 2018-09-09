@@ -2,7 +2,7 @@
 #include <wiringSerial.h>
 
 // Func : int serialOpen(const char* device, const int baud)
-namespace nodewpi {
+namespace wirio {
 
 NAN_METHOD(serialOpen) {
   
@@ -15,9 +15,11 @@ NAN_METHOD(serialOpen) {
   CHECK_ARGUMENT_TYPE_INT32(1);
   
   #if NODE_VERSION_AT_LEAST(0, 11, 0)
-    String::Utf8Value device(GET_ARGUMENT_AS_STRING(0));
+//    String::Utf8Value device(GET_ARGUMENT_AS_STRING(0));
+    Nan::Utf8String device(GET_ARGUMENT_AS_STRING(0));
   #else
-    String::AsciiValue device(GET_ARGUMENT_AS_STRING(0));
+//    String::AsciiValue device(GET_ARGUMENT_AS_STRING(0));
+    Nan::AsciiValue device(GET_ARGUMENT_AS_STRING(0));
   #endif
   int baudrate = GET_ARGUMENT_AS_INT32(1);
   
@@ -152,5 +154,5 @@ NAN_MODULE_INIT(init_wiringSerial) {
   NAN_EXPORT(target, serialGetchar);
 }
 
-} //namespace nodewpi
+} //namespace wirio
 

@@ -1,7 +1,7 @@
 #include "wiringPi.h"
 #include <wiringPi.h>
 
-namespace nodewpi {
+namespace wirio {
 
 NAN_METHOD(setup) {
 
@@ -723,4 +723,4 @@ NAN_MODULE_INIT(init_wiringPi) {
   NODE_DEFINE_CONSTANT(target, FSEL_ALT5);
 }
 
-} //namespace nodewpi
+} //namespace wirio

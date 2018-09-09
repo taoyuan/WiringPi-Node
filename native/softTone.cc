@@ -1,7 +1,7 @@
 #include "softTone.h"
 #include <softTone.h>
 
-namespace nodewpi {
+namespace wirio {
 
   // Func : int softToneCreate(int pin);
   // Description : This creates a software controlled tone pin. 
@@ -66,5 +66,5 @@ namespace nodewpi {
     NAN_EXPORT(target, softToneStop);
   }
 
-} //namespace nodewpi
+} //namespace wirio
 

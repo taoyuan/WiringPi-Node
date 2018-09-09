@@ -4,7 +4,7 @@
 
 #include "addon.h"
 
-namespace nodewpi {
+namespace wirio {
 
   #define	FSEL_INPT		0b000
   #define	FSEL_OUTP		0b001

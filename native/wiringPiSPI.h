@@ -2,7 +2,7 @@
 #define _WPI_WIRING_PI_SPI_H_
 
   #include "addon.h"
-namespace nodewpi {
+namespace wirio {
   NAN_METHOD(wiringPiSPIGetFd);
   NAN_METHOD(wiringPiSPIDataRW);
   NAN_METHOD(wiringPiSPISetup);

@@ -14,7 +14,7 @@
 // NOTE4 : There is currently no way to disable softPWM on a pin while the program in running.
 // NOTE5 : You need to keep your program running to maintain the PWM output!
 
-namespace nodewpi {
+namespace wirio {
 
 NAN_METHOD(softPwmCreate) {
   
@@ -78,5 +78,5 @@ NAN_MODULE_INIT(init_softPwm) {
   NAN_EXPORT(target, softPwmStop);
 }
 
-} //namespace nodewpi
+} //namespace wirio
 

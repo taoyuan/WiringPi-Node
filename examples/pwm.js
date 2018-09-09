@@ -1,10 +1,10 @@
 // Example of using PWM
-var wpi = require('wiring-pi');
-var async = require('async');
+const wpi = require('..');
+const async = require('async');
 
 wpi.setup('wpi');
 
-var pin = 1;
+const pin = 1;
 wpi.pinMode(pin, wpi.PWM_OUTPUT);
 
 async.series([

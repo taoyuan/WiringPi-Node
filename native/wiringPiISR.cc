@@ -213,7 +213,7 @@ static CopyablePersistentFunction interrupt_callbacks[64];
 
 
 
-namespace nodewpi {
+namespace wirio {
 
   NAN_METHOD(wiringPiISR) {
 

@@ -12,6 +12,6 @@
 //#include "extensions/extensions.h"
 //#include "devlib/devlib.h"
 
-namespace nodewpi {
-    NAN_MODULE_INIT(init_nodeWiringPi);
+namespace wirio {
+    NAN_MODULE_INIT(init_wirio);
 }

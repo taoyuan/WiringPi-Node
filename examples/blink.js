@@ -1,16 +1,16 @@
-var wpi = require('../../wiring-pi');
+const wirio = require('..');
 
-wpi.wiringPiSetupGpio();
+wirio.wiringPiSetup();
 
 console.log(process.env.WIRINGPI_GPIOMEM);
 
-var pin = 17;
+const pin = 0;
 
-wpi.pinMode(pin, wpi.OUTPUT);
+wirio.pinMode(pin, wirio.OUTPUT);
 
-var value = 1;
+let value = 1;
 
 setInterval(function() {
-  wpi.digitalWrite(pin, value);
+  wirio.digitalWrite(pin, value);
   value = +!value;
 }, 50);

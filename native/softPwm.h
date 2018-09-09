@@ -3,7 +3,7 @@
 
 #include "addon.h"
 
-namespace nodewpi {
+namespace wirio {
 
   NAN_METHOD(softPwmCreate);
   NAN_METHOD(softPwmWrite);

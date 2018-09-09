@@ -2,7 +2,7 @@
 #define _WPI_WIRING_SERIAL_H_
 
   #include "addon.h"
-  namespace nodewpi {
+  namespace wirio {
     NAN_METHOD(serialOpen);
     NAN_METHOD(serialClose);
     NAN_METHOD(serialFlush);

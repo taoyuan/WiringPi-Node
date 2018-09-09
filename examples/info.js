@@ -1,7 +1,7 @@
-var wpi = require('../../wiring-pi');
+const wpi = require('..');
 
 wpi.wiringPiSetupGpio();
 
-var rpiInfoArr = wpi.piBoardId();
+const rpiInfoArr = wpi.piBoardId();
 
 console.log(rpiInfoArr);

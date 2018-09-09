@@ -5,3 +5,4 @@ wiringPi
 node_modules
 .vscode
 wiring-pi-xcode.xcworkspace
+.idea

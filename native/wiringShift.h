@@ -2,7 +2,7 @@
 #define _WPI_WIRING_SHIFT_H_
 
   #include "addon.h"
-  namespace nodewpi {
+  namespace wirio {
     NAN_METHOD(shiftIn);
     NAN_METHOD(shiftOut);
     NAN_MODULE_INIT(init_wiringShift);

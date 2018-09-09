@@ -2,7 +2,7 @@
 #include <wiringPiI2C.h>
 #include <unistd.h>
 
-namespace nodewpi {
+namespace wirio {
 
   // Func : int wiringPiI2CRead (int fd);
   // Simple device read. Some devices present data when you read them without having to do any register transactions.
@@ -205,4 +205,4 @@ namespace nodewpi {
     NAN_EXPORT(target, wiringPiI2CClose);
   }
 
-} //namespace nodewpi
+} //namespace wirio

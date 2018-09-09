@@ -2,7 +2,7 @@
 #define _WPI_SOFT_TONE_H_
 
 #include "addon.h"
-namespace nodewpi {
+namespace wirio {
 
   NAN_METHOD(softToneCreate);
   NAN_METHOD(softToneWrite);
